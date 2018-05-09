@@ -25,51 +25,57 @@ def mse(y, y_hat):	# mean squared error (mean of the squares of the errors)
 
 
 def accuracy(y, y_hat):
-    """ function to calculate accuracy of y_hat given y"""
-    y = np.array(y)
-    y_hat = np.array(y_hat)
+	""" function to calculate accuracy of y_hat given y"""
+	y = np.array(y)	# transform to numpy array object
+	y_hat = np.array(y_hat)	# transform to numpy array object
 
-    y = y.astype(int)
-    y_hat = y_hat.astype(int)
+	y = y.astype(int)	# cast array elements to int (truncation)
+	y_hat = y_hat.astype(int)	# cast array elements to int (truncation)
 
-    y_hat = np.reshape(y_hat, (y_hat.shape[0],))
-    y = np.reshape(y, (y.shape[0],))
+	y_hat = np.reshape(y_hat, (y_hat.shape[0],))	# flatten to 1D array
+	y = np.reshape(y, (y.shape[0],))	# flatten to 1D array
 
-    equal = (y == y_hat)
-    accuracy = np.sum(equal) / y.shape[0]
+	equal = (y == y_hat)	# array of booleans where equal[i] = y[i] == y_hat[i]
+	accuracy = np.sum(equal) / y.shape[0]	# np.sum(equal) = count of True in equal
+											# y.shape[0] = rows in y
 
-    return accuracy
+	return accuracy
 
 
-def replace_column_of_matrix(X, col_num, random_sample,
-                             ptb_strategy):
-    """
-    Arguments: data matrix, n X k
-    random sample: row of data matrix, 1 X k
-    column number: 0 <-> k-1
+def replace_column_of_matrix(X, col_num, random_sample, ptb_strategy):	# replace the values in the column_number-th column in X with a fixed value
+	"""
+	Arguments: data matrix, n X k
+	random sample: row of data matrix, 1 X k
+	column number: 0 <-> k-1
 
-    replace all elements of X[column number] X
-    with random_sample[column_number]
-    """
+	replace all elements of X[column number] X
+	with random_sample[column_number]
+	"""
 
-    # need to implement random permutation.
-    # need to implement perturbation strategy as a function
-    # need a distance metrics file.
-    # this probably does not work right now, I need to go through to fix.
-    if col_num >= random_sample.shape[0]:
-        raise ValueError("column {} entered. Column # should be"
-                         "less than {}".format(col_num,
-                                               random_sample.shape[0]))
+	# need to implement random permutation.
+	# need to implement perturbation strategy as a function
+	# need a distance metrics file.
+	# this probably does not work right now, I need to go through to fix.
+	if col_num >= random_sample.shape[0]:
+		raise ValueError("column {} entered. Column # should be"
+						 "less than {}".format(col_num,
+											   random_sample.shape[0]))
 
-    # select the specific perturbation function chosen
-    # obtain value from that function
-    val_chosen = perturbation_strategy_dictionary[ptb_strategy](X,
-                                                                col_num,
-                                                                random_sample)
-    constant_array = np.repeat(val_chosen, X.shape[0])
-    X[:, col_num] = constant_array
+	if (ptb_strategy == "random-shuffle"):
+		col = X[:, col_num]
+		np.random.shuffle(col)
+		X[:, col_num] = col
+		return X
+	
+	# select the specific perturbation function chosen
+	# obtain value from that function
+	val_chosen = perturbation_strategy_dictionary[ptb_strategy](X,
+																col_num,
+																random_sample)
+	constant_array = np.repeat(val_chosen, X.shape[0])
+	X[:, col_num] = constant_array
 
-    return X
+	return X
 
 
 def detect_feature_sign(predict_function, X, col_num):
