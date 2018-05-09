@@ -57,13 +57,15 @@ propublica_data = pd.read_csv(
 compas_rating = propublica_data.score_factor.values
 propublica_data = propublica_data.drop("score_factor", 1)
 
-X = StandardScaler().fit_transform(propublica_data.values)
+X = StandardScaler().fit_transform(propublica_data.values)	# Standardize features by removing the mean and scaling to unit variance
+															# Fit to data, then transform it
 
 # train, test split of data
 X_train, X_test, y_train, y_test = train_test_split(X,
                                                     compas_rating,
                                                     test_size=0.20,
-                                                    random_state=42)
+                                                    random_state=42)	# Split arrays or matrices into random train and test subsets
+																		# http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
 
 ###########################
 
@@ -73,7 +75,7 @@ X_train, X_test, y_train, y_test = train_test_split(X,
 ##########################
 
 # specify build a classifier
-clf = RandomForestClassifier(n_estimators=50)
+clf = RandomForestClassifier(n_estimators=50)	# http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
 
 max_features = propublica_data.shape[1]
 
@@ -90,7 +92,7 @@ param_dist = {"max_depth": [6, None],
 n_iter_search = _RF_iterations
 random_search = RandomizedSearchCV(clf, param_distributions=param_dist,
                                    n_iter=n_iter_search,
-                                   verbose=_VERBOSITY)
+                                   verbose=_VERBOSITY)	# http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html
 
 
 # let's start training the model.

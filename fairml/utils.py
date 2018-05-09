@@ -8,20 +8,20 @@ import numpy as np
 from .perturbation_strategies import perturbation_strategy_dictionary
 
 
-def mse(y, y_hat):
-    """ function to calculate mse between to numpy vectors """
+def mse(y, y_hat):	# mean squared error (mean of the squares of the errors)
+	""" function to calculate mse between two numpy vectors """
 
-    y = np.array(y)
-    y_hat = np.array(y_hat)
+	y = np.array(y)	# transform to numpy array object
+	y_hat = np.array(y_hat)	# transform to numpy array object
 
-    y_hat = np.reshape(y_hat, (y_hat.shape[0],))
-    y = np.reshape(y, (y.shape[0],))
+	y_hat = np.reshape(y_hat, (y_hat.shape[0],))	# flatten to 1D array
+	y = np.reshape(y, (y.shape[0],))	# flatten to 1D array
 
-    diff = y - y_hat
-    diff_squared = np.square(diff)
-    mse = np.mean(diff_squared)
+	diff = y - y_hat	# array of the differences (diff[i] = y[i] - y_hat[i])
+	diff_squared = np.square(diff)	# array of the squares of the differences
+	mse = np.mean(diff_squared)	# mean of the squares of the errors
 
-    return mse
+	return mse
 
 
 def accuracy(y, y_hat):
@@ -74,24 +74,24 @@ def replace_column_of_matrix(X, col_num, random_sample,
 
 def detect_feature_sign(predict_function, X, col_num):
 
-    normal_output = predict_function(X)
-    column_range = X[:, col_num].max() - X[:, col_num].min()
+	normal_output = predict_function(X)	# with predict_function = clf [example.py:32], this is an array of 0 and 1 (?)
+	column_range = X[:, col_num].max() - X[:, col_num].min()	# range of values in the col_num-th column of X
 
-    X[:, col_num] = X[:, col_num] + np.repeat(column_range, X.shape[0])
-    new_output = predict_function(X)
+	X[:, col_num] = X[:, col_num] + np.repeat(column_range, X.shape[0])	# add range to all values in the col_num-th column
+	new_output = predict_function(X)
 
-    diff = new_output - normal_output
-    total_diff = np.mean(diff)
+	diff = new_output - normal_output	# diff[i,j] = new_output[i,j] - normal_output[i,j]
+	total_diff = np.mean(diff)	# mean over the flattened array
 
-    if total_diff >= 0:
-        return 1
-    else:
-        return -1
+	if total_diff >= 0:
+		return 1
+	else:
+		return -1
 
 
 def main():
-    pass
+	pass
 
 
 if __name__ == '__main__':
-    main()
+	main()
