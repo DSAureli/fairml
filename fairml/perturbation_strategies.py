@@ -14,7 +14,7 @@ def constant_median(X, column_number, random_sample):
 
 
 def random_sample(X, column_number, random_sample):
-    return random_sample[random_sample]
+	return random_sample[column_number]
 
 
 perturbation_strategy_dictionary = {
