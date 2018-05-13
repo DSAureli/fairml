@@ -34,7 +34,7 @@ clf.fit(propublica_data.values, compas_rating)	# fit(training_vector, target_vec
 												# approximates the real predictive model based on its input and output data
 
 #  call audit model
-importancies, _ = audit_model(clf.predict, propublica_data)
+importancies, dir_imp = audit_model(clf.predict, propublica_data)
 
 # print feature importance
 print(importancies)
@@ -48,3 +48,12 @@ fig = plot_dependencies(
 
 file_name = "fairml_propublica_linear_direct.png"
 plt.savefig(file_name, transparent=False, bbox_inches='tight', dpi=250)
+
+dir_fig = plot_dependencies(
+	dir_imp.median(),
+	reverse_values=False,
+	title="FairML feature dependence logistic regression model"
+)
+
+dir_file_name = "fairml_propublica_linear_direct_dir.png"
+plt.savefig(dir_file_name, transparent=False, bbox_inches='tight', dpi=250)
