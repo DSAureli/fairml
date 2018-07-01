@@ -195,11 +195,19 @@ def audit_model(predict_function, input_dataframe, distance_metric="mse",
 	# verify data set and black_box editor.
 	_, list_of_column_names = verify_input_data(input_dataframe)
 
+	###
+	print(list_of_column_names)
+
 	# convert data to numpy array
 	data = input_dataframe.values
+	#data = np.array(input_dataframe.values, dtype=float)
 
 	# get the normal output
 	normal_black_box_output = predict_function(data)
+
+	###
+	priors_before = []
+	priors_after = []
 
 	# perform the straight forward linear search at first
 	for current_iteration in range(number_of_runs):
@@ -214,7 +222,7 @@ def audit_model(predict_function, input_dataframe, distance_metric="mse",
 				np.copy(data),
 				col,
 				random_sample_selected,
-				ptb_strategy="random-shuffle")
+				ptb_strategy="constant-zero")
 			output_constant_col = predict_function(data_col_ptb)	# output_constant_col = prediction with data_col_ptb
 			if distance_metric == "accuracy":
 				output_difference_col = accuracy(
@@ -237,6 +245,11 @@ def audit_model(predict_function, input_dataframe, distance_metric="mse",
 				reference_vector,
 				column_to_skip=col)	# total_ptb_data = data with zeroed col -> data orthogonal to reference_vector (= col, before it was zeroed)
 
+			### Check "Number_of_Priors" values
+			if (col != 1):
+				print(input_dataframe.columns[1])
+				priors_after.append(total_ptb_data[:,1])
+
 			total_transformed_output = predict_function(total_ptb_data)	# total_transformed_output = prediction with orthogonal matrix
 
 			if distance_metric == "accuracy":
@@ -248,6 +261,10 @@ def audit_model(predict_function, input_dataframe, distance_metric="mse",
 
 			complete_perturbation_dictionary[
 				list_of_column_names[col]].append(total_difference)	# store total_difference
+
+	###
+	np_priors_after = np.array(priors_after)
+	np.savetxt("priors_after.txt", np_priors_after)
 
 	# figure out the sign of the different features
 	for cols in range(data.shape[1]):
