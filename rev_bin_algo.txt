@@ -1,0 +1,125 @@
+# reverse feature binarization #
+
+# pre: values in binarized and orthogonalized columns range from -1 to 1
+# input: matrix with feature binary columns
+
+# three methods for orthogonal vectors approximation:
+# 1) minimize divergences sum -> balance divergences
+# 2) minimize distance between divergences -> minimize divergences sum -> balance divergences
+# 3) weighted random choice, with values themselves as weights
+
+# remember to square the difference for the divergence (vectorial distance)!
+
+
+
+# 1)
+# init divergences array
+# for each row
+#     init new row array
+#     init row divergence
+#     for each col
+#         generate row with column col = 1 and others = 0
+#         calc sum of row divergences
+#         if first iteration
+#             assign generated row to new row array
+#             assign calculated sum of row divergences to row divergence
+#         else
+#             if sum of calculated row divergences is < than row divergence
+#                 assign generated row to new row array
+#                 assign calculated row divergence to row divergence
+#     [...]
+
+# 1b) choose the max, if more than one then base choice on balancing divergences
+# init divergences array
+# for each row
+#     get indexes of occurrences of max value in row
+#     if max value >= 0.5
+#         choose index of max divergence between indexes of max value
+#     else
+#         choose index of min divergence...
+#     generate row with chosen column = 1 and others = 0
+#     update divergences array
+#     replace row with generated row
+# return matrix
+
+
+
+# 2)
+# input: matrix with feature binary columns
+# for each row
+#     init new row
+#     init difference of new row divergences
+#     for each col
+#         generate row with column col = 1 and others = 0
+#         generate row of divergences
+#         calculate difference between max and min divergences
+#         if first iteration or calculated difference is < difference of new row divergences
+#             assign generated row to new row
+#             assign calculated difference between divergences to difference of new row divergences
+#     replace row with generated row
+# return matrix
+'''
+for each row
+	init new row
+	init difference of new row divergences
+	generate set of values in row
+	init list of values with minimum distance between divergences
+	for each value in set
+		generate row with first occurrence of value = 1 and others = 0
+		generate row of divergences
+		calculate difference between max and min divergences
+		[...]
+'''
+# but we want to minimize the overall difference
+'''
+  0 0 1
+
+new row | new div | diff
+  1 0 0 -> 1 0 1 -> 0
+  0 1 0 -> 0 1 1 -> 0
+  0 0 1 -> 0 0 0 -> 0 <-
+
+  with global div
+  (1 0 0)
+
+  1 0 0 -> 1 0 1 + (1 0 0) -> 2 0 1 -> 2
+  0 1 0 -> 0 1 1 + (1 0 0) -> 1 1 1 -> 0 <-
+  0 0 1 -> 0 0 0 + (1 0 0) -> 1 0 0 -> 1
+
+  can global divergence be (1 0 0)?
+  yes, if previous is
+
+  0 0 0
+
+  1 0 0 -> 1 0 0
+'''
+# thus
+'''
+init row of divergences
+for each row
+	init new row
+	init best value of difference between divergences
+	init best sum of divergences
+	for each col
+		generate row with column col = 1 and others = 0
+		generate array of divergences
+		sum row of divergences to array of divergences
+		calculate difference between max and min divergences
+		if first iteration or
+		   calculated difference < best value of difference or
+		   (calculated difference == best value of difference and sum of divergences < best sum of divergences)
+			assign generated row to new row
+			assign calculated difference to best value of difference
+			assign sum of divergences to best sum of divergences
+	update row of divergences
+	replace row with new row
+'''
+
+# 3)
+'''
+for each row
+	generate array [(x+2)^2 for x in row] of weights
+	random choice (numpy) with weights
+	generate new row with chosen index = 1 and others = 0
+	replace row with new row
+'''
