@@ -143,7 +143,7 @@ approx_orth_weighted_rand(c)
 print(c)
 '''
 
-#''' benchmark
+''' benchmark
 import timeit
 def rnd_gen():
 	return [random.randrange(21) / 10 - 1 for _ in range(50)]
@@ -175,7 +175,19 @@ print("2")
 accuracy(rnd, rnd2) # 137.28873501424476	# 0.0061798686526781605
 print("3")
 accuracy(rnd, rnd3) # 133.95224324046802	# 0.2707966923452047
-#'''
+'''
 
-def rev_bin(M):
-	pass
+algs = [approx_orth_min_divs_sum, approx_orth_min_divs_dist, approx_orth_weighted_rand]
+
+def rev_bin(M, alg=1):
+	assert alg in [1,2,3]
+	algs[alg-1](M)
+	for row_idx,row in enumerate(row.tolist() for row in M): # generator expression
+		M[row_idx][0] = row.index(1)
+	#np.delete(M, np.s_[1:], 1) # does not work in-place, must return
+	return M[:,[0]]
+
+''' test
+d = np.array([[1,0,0],[0,1,0],[0,0,1]])
+print(rev_bin(d))
+'''
