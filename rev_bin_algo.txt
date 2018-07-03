@@ -123,3 +123,13 @@ for each row
 	generate new row with chosen index = 1 and others = 0
 	replace row with new row
 '''
+''' 3b) semi-random
+for each row
+	if at least one value > 0
+		generate array of weights [x for x in row if x > 0 else 0]
+		random choice with weights
+	else
+		choose max in row
+	generate new row with chosen index = 1 and others = 0
+	replace row with new row
+'''
