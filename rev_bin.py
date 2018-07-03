@@ -6,13 +6,14 @@
 # three methods for orthogonal vectors approximation:
 # 1) minimize divergences sum -> balance divergences
 # 2) minimize distance between divergences -> minimize divergences sum -> balance divergences
-# 3) weighted random choice, with values themselves as weights
+# 3) weighted semi-random choice, with values themselves as weights
 
 # further possible improvement: put flat lines (all column equal) in a pool, to be considered at last
 # remember to square the difference for the divergence (vectorial distance)!
 
 import numpy as np
 import math
+import random
 
 ''' 1)
 choose the max, if more than one then base choice on balancing divergences
@@ -42,8 +43,7 @@ def approx_orth_min_divs_sum(M):
 		#print([math.sqrt(div) for div in divs])
 		M[row_idx] = new_row
 
-# test
-'''
+''' test
 a = np.array([[0.5,0.25,1],
 			  [1,1,0.5],
 			  [0,0,0],
@@ -99,8 +99,7 @@ def approx_orth_min_divs_dist(M):
 		#print(divs)
 		M[row_idx] = new_row
 
-# test
-'''
+''' test
 b1 = np.array([[0,0,0],
 			   [0,0,1]])
 b2 = np.copy(b1)
@@ -112,11 +111,41 @@ print(b2)
 '''
 
 ''' 3)
-
+	for each row
+		if at least one value > 0
+			generate array of weights [x for x in row if x > 0 else 0]
+			random choice with weights
+		else
+			choose max in row
+		generate new row with chosen index = 1 and others = 0
+		replace row with new row
 '''
 
 def approx_orth_weighted_rand(M):
-	pass
+	for row_idx,row in enumerate(row.tolist() for row in M): # generator expression
+		if any(x > 0 for x in row): # generator expression
+			weights = [x if x > 0 else 0 for x in row]
+			choice = random.choices([i for i,_ in enumerate(row)], weights)
+		else:
+			max_val = max(row) # don't move into list comprehension!
+			max_idxs = [idx for idx,val in enumerate(row) if val == max_val]
+			choice = random.choice(max_idxs)
+		new_row = np.zeros(M.shape[1])
+		new_row[choice] = 1
+		M[row_idx] = new_row
+
+''' test
+c = np.array([[-1,-0.5,-0.25],
+			  [-1,-0.5,0.25],
+			  [0.25,0.5,1]])
+
+approx_orth_weighted_rand(c)
+print(c)
+'''
+
+''' perf test
+
+'''
 
 def rev_bin(M):
 	pass
