@@ -82,7 +82,7 @@ def approx_orth_min_divs_dist(M):
 		best_divs = None
 		best_divs_diff = 0
 		best_divs_sum = 0
-		for col_idx,_ in enumerate(row):
+		for col_idx in range(len(row)):
 			gen_row = np.zeros(M.shape[1])
 			gen_row[col_idx] = 1
 			new_divs = [div + (gen_row[i] - row[i])**2 for i,div in enumerate(divs)]
@@ -125,11 +125,11 @@ def approx_orth_weighted_rand(M):
 	for row_idx,row in enumerate(row.tolist() for row in M): # generator expression
 		if any(x > 0 for x in row): # generator expression
 			weights = [x if x > 0 else 0 for x in row]
-			choice = random.choices([i for i,_ in enumerate(row)], weights)
+			choice = random.choices(range(len(row)), weights)
 		else:
 			max_val = max(row) # don't move into list comprehension!
-			max_idxs = [idx for idx,val in enumerate(row) if val == max_val]
-			choice = random.choice(max_idxs)
+			max_val_idxs = [idx for idx,val in enumerate(row) if val == max_val]
+			choice = random.choice(max_val_idxs)
 		new_row = np.zeros(M.shape[1])
 		new_row[choice] = 1
 		M[row_idx] = new_row
@@ -143,28 +143,39 @@ approx_orth_weighted_rand(c)
 print(c)
 '''
 
-''' perf test
-
-'''
+#''' benchmark
+import timeit
+def rnd_gen():
+	return [random.randrange(21) / 10 - 1 for _ in range(50)]
+rnd = np.array([rnd_gen() for _ in range(50000)])
+rnd1 = np.copy(rnd)
+rnd2 = np.copy(rnd)
+rnd3 = np.copy(rnd)
+def st():
+	approx_orth_min_divs_sum(rnd1)
+def nd():
+	approx_orth_min_divs_dist(rnd2)
+def rd():
+	approx_orth_weighted_rand(rnd3)
+print(timeit.timeit(st, number=1)) # 6.655 s
+print(timeit.timeit(nd, number=1)) # 207.932 s
+print(timeit.timeit(rd, number=1)) # 5.195 s
+def accuracy(old,new):
+	old = old.T
+	new = new.T
+	dist = [0] * new.shape[0]
+	dist = [math.sqrt(sum((new - old[col_idx][i])**2 for i,new in enumerate(col))) for col_idx,col in enumerate(new)]
+	mean = sum(dist) / len(dist)
+	std_dev = math.sqrt(sum((x - mean)**2 for x in dist) / len(dist))
+	print(mean)
+	print(std_dev)
+print("1")
+accuracy(rnd, rnd1) # 131.73752912134213	# 0.014866246267082203
+print("2")
+accuracy(rnd, rnd2) # 137.28873501424476	# 0.0061798686526781605
+print("3")
+accuracy(rnd, rnd3) # 133.95224324046802	# 0.2707966923452047
+#'''
 
 def rev_bin(M):
 	pass
-
-'''
-import numpy
-import timeit
-rnd = numpy.random.random_integers(0, 10, (1, 100000))[0].tolist()
-#print(rnd)
-
-def dio():
-	max_idx = [idx for idx,val in enumerate(rnd) if val == max(rnd)]
-	#print(max_idx)
-
-def dio2():
-	max_val = max(rnd)
-	max_idx = [idx for idx,val in enumerate(rnd) if val == max_val]
-	#print(max_idx)
-
-print(timeit.timeit(dio2, number=100))
-print(timeit.timeit(dio, number=100))
-'''
